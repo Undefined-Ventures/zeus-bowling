@@ -34,7 +34,7 @@ pub fn header(text: impl Into<String>) -> impl Bundle {
     (
         Name::new("Header"),
         Text(text.into()),
-        TextFont::from_font_size(16.0),
+        TextFont::from_font_size(40.0),
         TextColor(HEADER_TEXT),
     )
 }
@@ -44,7 +44,27 @@ pub fn label(text: impl Into<String>) -> impl Bundle {
     (
         Name::new("Label"),
         Text(text.into()),
-        TextFont::from_font_size(12.0),
+        TextFont::from_font_size(24.0),
+        TextColor(LABEL_TEXT),
+    )
+}
+
+/// A simple mini header label. Bigger than [`mini_label`].
+pub fn mini_header(text: impl Into<String>) -> impl Bundle {
+    (
+        Name::new("Header"),
+        Text(text.into()),
+        TextFont::from_font_size(24.0),
+        TextColor(HEADER_TEXT),
+    )
+}
+
+/// A simple text label.
+pub fn mini_label(text: impl Into<String>) -> impl Bundle {
+    (
+        Name::new("Label"),
+        Text(text.into()),
+        TextFont::from_font_size(16.0),
         TextColor(LABEL_TEXT),
     )
 }

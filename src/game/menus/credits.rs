@@ -41,11 +41,11 @@ fn spawn_credits_menu(mut commands: Commands) {
         StateScoped(Menu::Credits),
         TextFont::from_font_size(10.),
         children![
-            widget::header("Created by"),
+            widget::mini_header("Created by"),
             created_by(),
-            widget::header("Assets"),
+            widget::mini_header("Assets"),
             assets(),
-            widget::header("Notable Libs"),
+            widget::mini_header("Notable Libs"),
             libs(),
             widget::button("Back", go_back_on_click),
         ],
@@ -117,7 +117,7 @@ fn grid(content: Vec<[&'static str; 2]>) -> impl Bundle {
         Children::spawn(SpawnIter(content.into_iter().flatten().enumerate().map(
             |(i, text)| {
                 (
-                    widget::label(text),
+                    widget::mini_label(text),
                     Node {
                         justify_self: if i % 2 == 0 {
                             JustifySelf::End
