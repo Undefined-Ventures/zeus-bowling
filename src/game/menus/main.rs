@@ -12,6 +12,7 @@ fn spawn_main_menu(mut commands: Commands) {
         StateScoped(Menu::Main),
         #[cfg(not(target_family = "wasm"))]
         children![
+            widget::header("Zeus Goes Bowling"),
             widget::button("Play", enter_loading_or_gameplay_screen),
             widget::button("Settings", open_settings_menu),
             widget::button("Credits", open_credits_menu),
@@ -19,6 +20,7 @@ fn spawn_main_menu(mut commands: Commands) {
         ],
         #[cfg(target_family = "wasm")]
         children![
+            widget::header("Zeus Goes Bowling"),
             widget::button("Play", enter_loading_or_gameplay_screen),
             widget::button("Settings", open_settings_menu),
             widget::button("Credits", open_credits_menu),
