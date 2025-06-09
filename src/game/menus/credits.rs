@@ -70,7 +70,6 @@ fn assets() -> impl Bundle {
         ["Zeus Mesh", "Brett Striker (StrikeForceZero)"],
         ["World Mesh / Temple", "Brett Striker (StrikeForceZero)"],
         ["Button SFX", "CC0 by Jaszunio15"],
-        ["Gameplay Music", "Non-commerical by Suno (Gen AI)"],
         ["Credits Music", "CC BY 3.0 by Kevin MacLeod"],
         [
             "End Music",

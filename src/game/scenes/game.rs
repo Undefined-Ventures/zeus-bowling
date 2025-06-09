@@ -34,31 +34,6 @@ use std::ops::{Deref, DerefMut};
 use std::time::Duration;
 
 #[auto_register_type]
-#[derive(Resource, Asset, Clone, Reflect)]
-#[reflect(Resource)]
-struct GameplayAssets {
-    #[dependency]
-    music: Handle<AudioSource>,
-}
-
-impl FromWorld for GameplayAssets {
-    fn from_world(world: &mut World) -> Self {
-        let assets = world.resource::<AssetServer>();
-        Self {
-            music: assets.load("audio/music/Zeus's Tower.ogg"),
-        }
-    }
-}
-
-fn start_gameplay_music(mut commands: Commands, credits_music: Res<GameplayAssets>) {
-    commands.spawn((
-        Name::new("Gameplay Music"),
-        StateScoped(Screen::Gameplay),
-        music(credits_music.music.clone()),
-    ));
-}
-
-#[auto_register_type]
 #[auto_name]
 #[derive(Component, Debug, Copy, Clone, Reflect)]
 #[reflect(Component)]
@@ -294,8 +269,6 @@ pub(crate) fn plugin(app: &mut App) {
         (demo_input, spawn_over_time, hide_roof)
             .run_if(in_state(Pause(false)).and(in_state(Screen::Gameplay))),
     );
-    app.load_resource::<GameplayAssets>();
-    app.add_systems(OnEnter(Screen::Gameplay), start_gameplay_music);
 }
 
 #[derive(Debug, Clone, Copy)]
