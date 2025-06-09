@@ -13,16 +13,20 @@ fn spawn_main_menu(mut commands: Commands) {
         #[cfg(not(target_family = "wasm"))]
         children![
             widget::header("Zeus Goes Bowling"),
+            widget::mini_header("Loud volume warning!"),
             widget::button("Play", enter_loading_or_gameplay_screen),
             widget::button("Settings", open_settings_menu),
+            widget::button("Show Controls", open_controls_menu),
             widget::button("Credits", open_credits_menu),
             widget::button("Exit", exit_app),
         ],
         #[cfg(target_family = "wasm")]
         children![
             widget::header("Zeus Goes Bowling"),
+            widget::mini_header("Loud volume warning!"),
             widget::button("Play", enter_loading_or_gameplay_screen),
             widget::button("Settings", open_settings_menu),
+            widget::button("Show Controls", open_controls_menu),
             widget::button("Credits", open_credits_menu),
         ],
     ));
@@ -42,6 +46,10 @@ fn enter_loading_or_gameplay_screen(
 
 fn open_settings_menu(_: Trigger<Pointer<Click>>, mut next_menu: ResMut<NextState<Menu>>) {
     next_menu.set(Menu::Settings);
+}
+
+fn open_controls_menu(_: Trigger<Pointer<Click>>, mut next_menu: ResMut<NextState<Menu>>) {
+    next_menu.set(Menu::ViewControls);
 }
 
 fn open_credits_menu(_: Trigger<Pointer<Click>>, mut next_menu: ResMut<NextState<Menu>>) {

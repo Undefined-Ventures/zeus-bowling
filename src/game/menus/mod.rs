@@ -5,6 +5,7 @@ mod end;
 mod main;
 mod pause;
 mod settings;
+mod view_controls;
 
 use bevy::prelude::*;
 use bevy_auto_plugin::auto_plugin::*;
@@ -18,6 +19,7 @@ pub enum Menu {
     None,
     Main,
     Credits,
+    ViewControls,
     Settings,
     Pause,
     End,
@@ -31,5 +33,6 @@ pub(super) fn plugin(app: &mut App) {
         main::plugin,
         pause::plugin,
         settings::plugin,
+        view_controls::plugin,
     ));
 }

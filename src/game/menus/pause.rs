@@ -14,6 +14,7 @@ fn spawn_pause_menu(mut commands: Commands) {
             widget::header("Game paused"),
             widget::button("Continue", close_menu),
             widget::button("Settings", open_settings_menu),
+            widget::button("Show Controls", open_show_controls),
             widget::button("Quit to title", quit_to_title),
         ],
     ));
@@ -21,6 +22,10 @@ fn spawn_pause_menu(mut commands: Commands) {
 
 fn open_settings_menu(_: Trigger<Pointer<Click>>, mut next_menu: ResMut<NextState<Menu>>) {
     next_menu.set(Menu::Settings);
+}
+
+fn open_show_controls(_: Trigger<Pointer<Click>>, mut next_menu: ResMut<NextState<Menu>>) {
+    next_menu.set(Menu::ViewControls);
 }
 
 fn close_menu(_: Trigger<Pointer<Click>>, mut next_menu: ResMut<NextState<Menu>>) {
