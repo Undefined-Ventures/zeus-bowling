@@ -55,7 +55,7 @@ fn spawn_credits_menu(mut commands: Commands) {
 fn created_by() -> impl Bundle {
     grid(vec![
         [
-            "Brett Striker",
+            "Brett Striker (StrikeForceZero)",
             "Programmer / 3D Art / Mad Scientist / Narnia Explorer",
         ],
         [
@@ -67,6 +67,8 @@ fn created_by() -> impl Bundle {
 
 fn assets() -> impl Bundle {
     grid(vec![
+        ["Zeus Mesh", "Brett Striker (StrikeForceZero)"],
+        ["World Mesh / Temple", "Brett Striker (StrikeForceZero)"],
         ["Button SFX", "CC0 by Jaszunio15"],
         ["Credits Music", "CC BY 3.0 by Kevin MacLeod"],
         [
