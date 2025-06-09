@@ -1,7 +1,34 @@
 use bevy::prelude::*;
 use bevy_auto_plugin::auto_plugin::*;
 
+use crate::game::asset_tracking::LoadResource;
+use crate::game::audio::music;
 use crate::game::{menus::Menu, scenes::LevelData, screens::Screen, theme::widget};
+
+#[auto_register_type]
+#[derive(Resource, Asset, Clone, Reflect)]
+#[reflect(Resource)]
+struct EndAssets {
+    #[dependency]
+    music: Handle<AudioSource>,
+}
+
+impl FromWorld for EndAssets {
+    fn from_world(world: &mut World) -> Self {
+        let assets = world.resource::<AssetServer>();
+        Self {
+            music: assets.load("audio/music/Clement Panchout _ Unsettling victory _ 2019.ogg"),
+        }
+    }
+}
+
+fn start_credits_music(mut commands: Commands, credits_music: Res<EndAssets>) {
+    commands.spawn((
+        Name::new("End Music"),
+        StateScoped(Menu::End),
+        music(credits_music.music.clone()),
+    ));
+}
 
 fn spawn_end_menu(mut commands: Commands, ld: Res<LevelData>) {
     commands.spawn((
@@ -45,5 +72,6 @@ fn quit_to_title(
 
 #[auto_plugin(app=app)]
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(Menu::End), spawn_end_menu);
+    app.load_resource::<EndAssets>();
+    app.add_systems(OnEnter(Menu::End), (spawn_end_menu, start_credits_music));
 }

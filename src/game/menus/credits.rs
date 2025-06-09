@@ -68,7 +68,11 @@ fn created_by() -> impl Bundle {
 fn assets() -> impl Bundle {
     grid(vec![
         ["Button SFX", "CC0 by Jaszunio15"],
-        ["Music", "CC BY 3.0 by Kevin MacLeod"],
+        ["Credits Music", "CC BY 3.0 by Kevin MacLeod"],
+        [
+            "End Music",
+            "CC BY 4.0 Music by Clement Panchout – www.clementpanchout.com",
+        ],
         [
             "Bevy logo",
             "All rights reserved by the Bevy Foundation, permission granted for splash screen use when unmodified",
