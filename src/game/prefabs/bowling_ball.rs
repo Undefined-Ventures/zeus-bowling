@@ -18,6 +18,7 @@ pub const BOWLING_BALL_RADIUS: f32 = 0.108;
 
 #[auto_register_type]
 #[derive(Resource, Asset, Debug, Clone, Reflect)]
+#[reflect(Resource)]
 pub struct BowlingBallAssets {
     #[dependency]
     pub bowling_ball: Handle<Scene>,

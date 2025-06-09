@@ -14,6 +14,7 @@ pub struct GameWorld;
 
 #[auto_register_type]
 #[derive(Resource, Asset, Debug, Clone, Reflect)]
+#[reflect(Resource)]
 pub struct GameWorldAssets {
     #[dependency]
     pub scene: Handle<Scene>,

@@ -36,6 +36,7 @@ impl ComponentName for Player {
 
 #[auto_register_type]
 #[derive(Resource, Asset, Debug, Clone, Reflect)]
+#[reflect(Resource)]
 pub struct PlayerAssets {
     #[dependency]
     pub scene: Handle<Scene>,

@@ -39,11 +39,14 @@ fn spawn_credits_menu(mut commands: Commands) {
         widget::ui_root("Credits Menu"),
         GlobalZIndex(2),
         StateScoped(Menu::Credits),
+        TextFont::from_font_size(10.),
         children![
             widget::header("Created by"),
             created_by(),
             widget::header("Assets"),
             assets(),
+            widget::header("Notable Libs"),
+            libs(),
             widget::button("Back", go_back_on_click),
         ],
     ));
@@ -51,8 +54,14 @@ fn spawn_credits_menu(mut commands: Commands) {
 
 fn created_by() -> impl Bundle {
     grid(vec![
-        // ["Joe Shmoe", "Implemented alligator wrestling AI"],
-        // ["Jane Doe", "Made the music for the alien invasion"],
+        [
+            "Brett Striker",
+            "Programmer / 3D Art / Mad Scientist / Narnia Explorer",
+        ],
+        [
+            "Michail Denchev",
+            "Programmer / 'Can we de-scope this?' guy",
+        ],
     ])
 }
 
@@ -64,6 +73,34 @@ fn assets() -> impl Bundle {
             "Bevy logo",
             "All rights reserved by the Bevy Foundation, permission granted for splash screen use when unmodified",
         ],
+        [
+            "Skele mesh",
+            "https://initial-project.itch.io/low-poly-skeletons",
+        ],
+        [
+            "bowling ball",
+            "https://www.cgtrader.com/free-3d-models/sports/game/bowling-ball-and-pins-d513306d-a290-46e3-86f7-adb8bec45d97",
+        ],
+        [
+            "Bone Snap Sfx 1",
+            "https://pixabay.com/sound-effects/bone-snap-295399/",
+        ],
+        [
+            "Bone Snap Sfx 2",
+            "https://pixabay.com/sound-effects/bone-break-sound-269658/",
+        ],
+        [
+            "Throw Sfx",
+            "https://pixabay.com/sound-effects/whoosh-313320/",
+        ],
+    ])
+}
+
+fn libs() -> impl Bundle {
+    grid(vec![
+        ["Avian3D", "bevy-inspector-egui"],
+        ["Skein", "bevy_panorbit_camera"],
+        ["bevy_egui", "bevy_auto_plugin"],
     ])
 }
 

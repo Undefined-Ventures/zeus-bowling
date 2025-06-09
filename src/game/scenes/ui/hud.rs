@@ -6,7 +6,50 @@ use bevy::{
 };
 use bevy_auto_plugin::auto_plugin::*;
 
-use crate::game::{scenes::LevelData, screens::Screen};
+use crate::game::{asset_tracking::LoadResource, scenes::LevelData, screens::Screen};
+
+#[auto_register_type]
+#[derive(Resource, Asset, Debug, Clone, Reflect)]
+pub struct HudAssets {
+    #[dependency]
+    temple_image: Handle<Image>,
+    #[dependency]
+    skull_image: Handle<Image>,
+    #[dependency]
+    balling_ball_image: Handle<Image>,
+}
+
+impl FromWorld for HudAssets {
+    fn from_world(world: &mut World) -> Self {
+        let asset_server = world.resource::<AssetServer>();
+        let temple_image = asset_server.load_with_settings(
+            "images/temple.png",
+            |settings: &mut ImageLoaderSettings| {
+                // Need to use nearest filtering to avoid bleeding between the slices with tiling
+                settings.sampler = ImageSampler::nearest();
+            },
+        );
+        let skull_image = asset_server.load_with_settings(
+            "images/skull.png",
+            |settings: &mut ImageLoaderSettings| {
+                // Need to use nearest filtering to avoid bleeding between the slices with tiling
+                settings.sampler = ImageSampler::nearest();
+            },
+        );
+        let balling_ball_image = asset_server.load_with_settings(
+            "images/balling_ball.png",
+            |settings: &mut ImageLoaderSettings| {
+                // Need to use nearest filtering to avoid bleeding between the slices with tiling
+                settings.sampler = ImageSampler::nearest();
+            },
+        );
+        Self {
+            temple_image,
+            skull_image,
+            balling_ball_image,
+        }
+    }
+}
 
 #[derive(Component, Clone, Copy)]
 pub struct TempleHealthUi;
@@ -48,28 +91,7 @@ fn update_ball_count(
     ));
 }
 
-fn spawn_hud_elements(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let temple_image = asset_server.load_with_settings(
-        "images/temple.png",
-        |settings: &mut ImageLoaderSettings| {
-            // Need to use nearest filtering to avoid bleeding between the slices with tiling
-            settings.sampler = ImageSampler::nearest();
-        },
-    );
-    let skull_image = asset_server.load_with_settings(
-        "images/skull.png",
-        |settings: &mut ImageLoaderSettings| {
-            // Need to use nearest filtering to avoid bleeding between the slices with tiling
-            settings.sampler = ImageSampler::nearest();
-        },
-    );
-    let balling_ball_image = asset_server.load_with_settings(
-        "images/balling_ball.png",
-        |settings: &mut ImageLoaderSettings| {
-            // Need to use nearest filtering to avoid bleeding between the slices with tiling
-            settings.sampler = ImageSampler::nearest();
-        },
-    );
+fn spawn_hud_elements(mut commands: Commands, hud_assets: Res<HudAssets>) {
     commands.spawn((
         Node {
             width: Val::Px(800.0),
@@ -85,7 +107,7 @@ fn spawn_hud_elements(mut commands: Commands, asset_server: Res<AssetServer>) {
         children![
             // Temple health
             ImageNode {
-                image: temple_image.clone(),
+                image: hud_assets.temple_image.clone(),
                 ..default()
             },
             (
@@ -97,7 +119,7 @@ fn spawn_hud_elements(mut commands: Commands, asset_server: Res<AssetServer>) {
             (Text::new("        "),), // spacer
             // Kill count
             ImageNode {
-                image: skull_image.clone(),
+                image: hud_assets.skull_image.clone(),
                 ..default()
             },
             (
@@ -109,7 +131,7 @@ fn spawn_hud_elements(mut commands: Commands, asset_server: Res<AssetServer>) {
             (Text::new("        "),), // spacer
             // Ball count
             ImageNode {
-                image: balling_ball_image.clone(),
+                image: hud_assets.balling_ball_image.clone(),
                 ..default()
             },
             (
@@ -130,6 +152,7 @@ fn spawn_hud_elements(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 #[auto_plugin(app=app)]
 pub(crate) fn plugin(app: &mut App) {
+    app.load_resource::<HudAssets>();
     app.add_systems(OnEnter(Screen::Gameplay), spawn_hud_elements);
     app.add_systems(
         Update,

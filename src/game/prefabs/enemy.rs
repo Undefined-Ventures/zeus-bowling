@@ -27,6 +27,7 @@ use std::fmt::Debug;
 
 #[auto_register_type]
 #[derive(Resource, Asset, Debug, Clone, Reflect)]
+#[reflect(Resource)]
 pub struct EnemyAssets {
     #[dependency]
     pub base_skele: Handle<Gltf>,
@@ -53,6 +54,7 @@ impl FromWorld for EnemyAssets {
         let bone_snap_1 = assets.load("audio/sound_effects/bone-snap-1.mp3");
         let bone_snap_2 = assets.load("audio/sound_effects/bone-snap-2.mp3");
         let bone_snap_sounds = vec![bone_snap_1.clone(), bone_snap_2.clone()];
+        
         Self {
             base_skele: gltf_handle,
             bone_snap_1,

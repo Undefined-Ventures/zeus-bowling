@@ -3,6 +3,7 @@ use crate::game::behaviors::spawn_group::{SpawnGroup, SpawnGroupItem};
 use crate::game::behaviors::target_ent::TargetEnt;
 use crate::game::camera::{CameraTarget, MainCamera};
 use crate::game::effects::lightning_ball::{LightningBall, LightningBallConduit};
+use crate::game::pause_controller::Pause;
 use crate::game::prefabs::bowling_ball::BowlingBall;
 use crate::game::prefabs::enemy::{Enemy, SKELE_WIDTH};
 use crate::game::prefabs::game_world::GameWorld;
@@ -27,6 +28,7 @@ use bevy_auto_plugin::auto_plugin::*;
 use itertools::Itertools;
 use smart_default::SmartDefault;
 use std::ops::{Deref, DerefMut};
+use std::time::Duration;
 
 use super::LevelData;
 
@@ -60,22 +62,33 @@ pub fn spawn_level(mut commands: Commands) {
         ));
 }
 
-fn spawn_extras_on_instance_ready(
-    trigger: Trigger<SceneInstanceReady>,
+fn spawn_over_time(
     mut commands: Commands,
     mut game_world_marker: GameWorldMarkerSystemParam,
+    mut count_down: Local<Duration>,
+    mut wave: Local<usize>,
+    time: Res<Time>,
 ) {
-    info!("Trigger<SceneInstanceReady>");
-    commands.entity(trigger.observer()).despawn();
-    info!("spawning player");
-    let player = game_world_marker.spawn_in_player_spawn(Player, None);
+    *count_down = count_down.saturating_sub(time.delta());
+    if !count_down.is_zero() {
+        return;
+    }
+    let time_between_waves = Duration::from_secs_f32(8.);
+    *count_down = time_between_waves;
+    if *wave == 0 {
+        *wave = 1;
+    }
     info!("spawning enemies");
     for ix in 0..1 {
         let formation_id = game_world_marker.spawn_in_enemy_spawn(
-            (Name::new(format!("SkeleGroup({ix})")), SpawnGroup(ix)),
+            (
+                Name::new(format!("SkeleGroup({})", *wave)),
+                SpawnGroup(*wave),
+            ),
             None,
         );
-        let (layout, layout_entries) = generate_pin_layout(SKELE_WIDTH, 0.5, 5, Facing::Toward);
+        let (layout, layout_entries) =
+            generate_pin_layout(SKELE_WIDTH, 0.5, 3 + *wave, Facing::Toward);
         let pin_entity_layout_tuples = layout_entries
             .into_iter()
             .map(|entry| {
@@ -127,6 +140,17 @@ fn spawn_extras_on_instance_ready(
             }
         }
     }
+}
+
+fn spawn_extras_on_instance_ready(
+    trigger: Trigger<SceneInstanceReady>,
+    mut commands: Commands,
+    mut game_world_marker: GameWorldMarkerSystemParam,
+) {
+    info!("Trigger<SceneInstanceReady>");
+    commands.entity(trigger.observer()).despawn();
+    info!("spawning player");
+    let player = game_world_marker.spawn_in_player_spawn(Player, None);
 }
 
 #[derive(Debug, SmartDefault)]
@@ -239,8 +263,9 @@ fn hide_roof(
 
 #[auto_plugin(app=app)]
 pub(crate) fn plugin(app: &mut App) {
-    app.add_systems(Update, demo_input);
+    app.add_systems(Update, demo_input.run_if(in_state(Pause(false))));
     app.add_systems(Update, hide_roof);
+    app.add_systems(Update, spawn_over_time.run_if(in_state(Pause(false))));
 }
 
 #[derive(Debug, Clone, Copy)]
