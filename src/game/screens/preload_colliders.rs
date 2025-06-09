@@ -120,11 +120,22 @@ fn ch_added(
 fn add_obs(mut commands: Commands) {
     commands.add_observer(ch_added);
 }
-fn all_colliders_loaded(counts: Res<ColliderRefCount>, state: Res<State<Screen>>) -> bool {
+fn all_colliders_loaded(
+    mut colliders_loaded: Local<bool>,
+    counts: Res<ColliderRefCount>,
+    state: Res<State<Screen>>,
+) -> bool {
     if state.get() != &Screen::PreloadColliders {
         return true;
     }
-    counts.is_all_done()
+    if *colliders_loaded {
+        return true;
+    }
+    let all_done = counts.is_all_done();
+    if all_done {
+        *colliders_loaded = counts.is_all_done();
+    }
+    all_done
 }
 
 #[auto_plugin(app=app)]
