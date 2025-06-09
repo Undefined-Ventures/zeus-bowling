@@ -3,6 +3,7 @@
 mod end;
 mod gameplay;
 pub mod loading;
+mod preload_colliders;
 mod skein_server;
 mod splash;
 mod title;
@@ -20,6 +21,7 @@ pub enum Screen {
     Splash,
     Title,
     Loading,
+    PreloadColliders,
     Gameplay,
     SkeinServer,
     End,
@@ -31,6 +33,7 @@ pub(super) fn plugin(app: &mut App) {
         end::plugin,
         gameplay::plugin,
         loading::plugin,
+        preload_colliders::plugin,
         splash::plugin,
         title::plugin,
         skein_server::plugin,

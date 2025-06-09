@@ -32,7 +32,7 @@ fn enter_loading_or_gameplay_screen(
     mut next_screen: ResMut<NextState<Screen>>,
 ) {
     if resource_handles.is_all_done() {
-        next_screen.set(Screen::Gameplay);
+        next_screen.set(Screen::PreloadColliders);
     } else {
         next_screen.set(Screen::Loading);
     }

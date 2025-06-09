@@ -361,5 +361,6 @@ fn on_add_collider_disabled(trigger: Trigger<OnAdd, ColliderDisabled>, mut comma
 #[auto_plugin(app=app)]
 pub(crate) fn plugin(app: &mut App) {
     app.add_observer(on_add_collider_disabled);
-    app.add_systems(Update, auto_collider_mesh2);
+    app.add_observer(auto_collider_mesh_obs);
+    // app.add_systems(Update, auto_collider_mesh2);
 }
