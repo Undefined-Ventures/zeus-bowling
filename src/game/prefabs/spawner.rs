@@ -1,9 +1,9 @@
 use std::time::Duration;
 
+use super::enemy::Enemy;
+use crate::game::screens::Screen;
 use bevy::{color::palettes::css::RED, prelude::*};
 use bevy_auto_plugin::auto_plugin::*;
-
-use super::enemy::Enemy;
 
 #[auto_register_type]
 #[auto_name]
@@ -31,7 +31,11 @@ fn on_spawner_added(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    state: Res<State<Screen>>,
 ) {
+    if state.get() != &Screen::Gameplay {
+        return;
+    }
     commands.entity(trigger.target()).insert((
         Mesh3d(meshes.add(Cylinder::new(4.0, 10.0))),
         MeshMaterial3d(materials.add(StandardMaterial {

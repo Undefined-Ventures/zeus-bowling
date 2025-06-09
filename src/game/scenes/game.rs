@@ -1,3 +1,4 @@
+use super::LevelData;
 use crate::game::behaviors::pin_joint::{OnAddPinJoint, PinJoint, PinJoints};
 use crate::game::behaviors::spawn_group::{SpawnGroup, SpawnGroupItem};
 use crate::game::behaviors::target_ent::TargetEnt;
@@ -29,8 +30,6 @@ use itertools::Itertools;
 use smart_default::SmartDefault;
 use std::ops::{Deref, DerefMut};
 use std::time::Duration;
-
-use super::LevelData;
 
 #[auto_register_type]
 #[auto_name]
@@ -263,9 +262,11 @@ fn hide_roof(
 
 #[auto_plugin(app=app)]
 pub(crate) fn plugin(app: &mut App) {
-    app.add_systems(Update, demo_input.run_if(in_state(Pause(false))));
-    app.add_systems(Update, hide_roof);
-    app.add_systems(Update, spawn_over_time.run_if(in_state(Pause(false))));
+    app.add_systems(
+        Update,
+        (demo_input, spawn_over_time, hide_roof)
+            .run_if(in_state(Pause(false)).and(in_state(Screen::Gameplay))),
+    );
 }
 
 #[derive(Debug, Clone, Copy)]
