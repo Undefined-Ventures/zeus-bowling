@@ -4,7 +4,6 @@ use crate::game::asset_tracking::LoadResource;
 use crate::game::audio::sound_effect;
 use crate::game::behaviors::despawn::Despawn;
 use crate::game::camera::CameraTarget;
-use crate::game::effects::lightning_ball::LightningBall;
 use crate::game::prefabs::bowling_ball::BowlingBall;
 use crate::game::prefabs::game_world::GameWorld;
 use crate::game::prefabs::game_world_markers::{
@@ -94,7 +93,6 @@ impl PlayerSystemParam<'_, '_> {
         let bowling_ball = self.spawn_bowling_ball_spawn(
             (
                 BowlingBall,
-                LightningBall,
                 CameraTarget,
                 ExternalAngularImpulse::new(accuracy_rot * (Vec3::X * 10.0 * power)),
                 ExternalImpulse::new(accuracy_rot * (Vec3::Z * 1000.0 * power)),

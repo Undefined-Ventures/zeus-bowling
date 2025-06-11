@@ -1,6 +1,5 @@
 use super::LevelData;
 use crate::game::behaviors::target_ent::TargetEnt;
-use crate::game::effects::lightning_ball::LightningBallConduit;
 use crate::game::pause_controller::Pause;
 use crate::game::prefabs::enemy::Enemy;
 use crate::game::prefabs::game_world::GameWorld;
@@ -76,7 +75,6 @@ fn spawn_over_time(
                     .spawn((
                         ChildOf(formation_id),
                         Enemy::BaseSkele,
-                        LightningBallConduit,
                         Mass(1.0),
                         Friction::new(0.4),
                         TargetEnt {

@@ -3,7 +3,6 @@ use avian3d::prelude::{CollisionEventsEnabled, Gravity};
 use crate::game::asset_tracking::LoadResource;
 use crate::game::audio::sound_effect;
 use crate::game::behaviors::MovementSpeed;
-use crate::game::effects::break_down_gltf::BreakableGltfs;
 use crate::game::rng::global::GlobalRng;
 use avian3d::prelude::{CenterOfMass, Collider, RigidBody};
 use bevy::prelude::*;
@@ -28,21 +27,14 @@ pub struct EnemyAssets {
 
 impl FromWorld for EnemyAssets {
     fn from_world(world: &mut World) -> Self {
-        let gltf_handle = {
-            let assets = world.resource::<AssetServer>();
-            let gltf_handle = assets.load("models/enemies/LowPolySkeletonRigged.glb");
-            world
-                .resource_mut::<BreakableGltfs>()
-                .add(gltf_handle.clone());
-            gltf_handle
-        };
         let assets = world.resource::<AssetServer>();
+        let base_skele = assets.load("models/enemies/LowPolySkeletonRigged.glb");
         let bone_snap_1 = assets.load("audio/sound_effects/bone-snap-1.mp3");
         let bone_snap_2 = assets.load("audio/sound_effects/bone-snap-2.mp3");
         let bone_snap_sounds = vec![bone_snap_1.clone(), bone_snap_2.clone()];
 
         Self {
-            base_skele: gltf_handle,
+            base_skele,
             bone_snap_1,
             bone_snap_2,
             bone_snap_sounds,
