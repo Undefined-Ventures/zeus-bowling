@@ -8,12 +8,10 @@ use crate::game::effects::lightning_ball::LightningBall;
 use crate::game::prefabs::bowling_ball::BowlingBall;
 use crate::game::prefabs::game_world::GameWorld;
 use crate::game::prefabs::game_world_markers::{
-    BowlingBallSpawnMarker, ComponentName, EntityWithGlobalTransformQueryData, SpawnHelper,
+    BowlingBallSpawnMarker, ComponentName, SpawnHelper,
 };
 use crate::game::rng::global::GlobalRng;
-use crate::game::scenes::LevelData;
 use avian3d::prelude::{Collider, ExternalAngularImpulse, ExternalImpulse, Mass, RigidBody};
-use bevy::audio::PlaybackMode;
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_auto_plugin::auto_plugin::*;

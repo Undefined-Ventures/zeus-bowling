@@ -1,25 +1,11 @@
-use avian3d::prelude::{
-    CollisionEventsEnabled, ExternalForce, ExternalImpulse, ExternalTorque, Gravity,
-};
-use std::f32::consts::PI;
+use avian3d::prelude::{CollisionEventsEnabled, Gravity};
 
 use crate::game::asset_tracking::LoadResource;
 use crate::game::audio::sound_effect;
-use crate::game::behaviors::dynamic_character_controller::{
-    ControllerGravity, ControllerMode, DynamicCharacterController, MaxSlopeAngle,
-};
-use crate::game::behaviors::enemy_controller::EnemyController;
-use crate::game::behaviors::grounded::Groundable;
-use crate::game::behaviors::knocked_over::KnockedOverAngle;
-use crate::game::behaviors::target_ent::TargetEnt;
-use crate::game::behaviors::zap_stuns::ZapStunTime;
-use crate::game::behaviors::{MaxMovementSpeed, MovementSpeed};
+use crate::game::behaviors::MovementSpeed;
 use crate::game::effects::break_down_gltf::BreakableGltfs;
-use crate::game::prefabs::bowling_ball::BowlingBall;
 use crate::game::rng::global::GlobalRng;
-use crate::game::screens::Screen;
-use avian3d::prelude::{CenterOfMass, Collider, CollisionStarted, Collisions, RigidBody};
-use bevy::audio::PlaybackMode;
+use avian3d::prelude::{CenterOfMass, Collider, RigidBody};
 use bevy::prelude::*;
 use bevy_auto_plugin::auto_plugin::*;
 use rand::prelude::IndexedRandom;
@@ -54,7 +40,7 @@ impl FromWorld for EnemyAssets {
         let bone_snap_1 = assets.load("audio/sound_effects/bone-snap-1.mp3");
         let bone_snap_2 = assets.load("audio/sound_effects/bone-snap-2.mp3");
         let bone_snap_sounds = vec![bone_snap_1.clone(), bone_snap_2.clone()];
-        
+
         Self {
             base_skele: gltf_handle,
             bone_snap_1,
@@ -79,25 +65,13 @@ pub enum Enemy {
 #[derive(Event, Debug, Default, Copy, Clone, Reflect)]
 pub struct PlayBoneSnap;
 
-pub const SKELE_WIDTH: f32 = 5.0;
 const DEFAULT_MOVE_SPEED: f32 = 30.0;
-const DEFAULT_STUN_TIME: f32 = 2.0;
 const DEFAULT_DESPAWN_AFTER_DEAD_SECS: f32 = 5.0;
 
 impl Enemy {
     pub fn default_move_speed(&self) -> f32 {
         match self {
             Self::BaseSkele => DEFAULT_MOVE_SPEED,
-        }
-    }
-    pub fn default_max_move_speed(&self) -> f32 {
-        match self {
-            Self::BaseSkele => DEFAULT_MOVE_SPEED,
-        }
-    }
-    pub fn default_stun_time(&self) -> f32 {
-        match self {
-            Self::BaseSkele => DEFAULT_STUN_TIME,
         }
     }
     pub fn default_despawn_time(&self) -> f32 {
@@ -129,39 +103,20 @@ fn on_enemy_added(
 
     // MovementSpeed
     let movement_speed = MovementSpeed(enemy.default_move_speed());
-    let max_movement_speed = MaxMovementSpeed(enemy.default_max_move_speed());
 
-    commands
-        .entity(trigger.target())
-        .insert((
-            children![(
-                SceneRoot(gltf.scenes[0].clone()),
-                Transform::from_translation(Vec3::Y * -1.75),
-            ),],
-            // Parry colliders are centered around origin. Meshes have lowest
-            // vertex at y=0.0. Spawning the collider allows us to adjust
-            // its position to match the mesh.
-            Collider::capsule(0.25, 3.0),
-            CenterOfMass::new(0.0, -5.5, 0.0),
-            RigidBody::Dynamic,
-            EnemyController,
-            movement_speed,
-            max_movement_speed,
-            DynamicCharacterController,
-            // needed for joints to work properly
-            // ControllerMode::Force,
-            ControllerMode::Velocity,
-            // ExternalForce::ZERO.with_persistence(false),
-            // ExternalImpulse::ZERO.with_persistence(false),
-            // ExternalTorque::ZERO.with_persistence(false),
-        ))
-        .insert((
-            Groundable,
-            KnockedOverAngle(75_f32.to_radians()),
-            ZapStunTime(enemy.default_stun_time()),
-            ControllerGravity::from(gravity),
-            MaxSlopeAngle(60_f32.to_radians()),
-        ));
+    commands.entity(trigger.target()).insert((
+        children![(
+            SceneRoot(gltf.scenes[0].clone()),
+            Transform::from_translation(Vec3::Y * -1.75),
+        ),],
+        // Parry colliders are centered around origin. Meshes have lowest
+        // vertex at y=0.0. Spawning the collider allows us to adjust
+        // its position to match the mesh.
+        Collider::capsule(0.25, 3.0),
+        CenterOfMass::new(0.0, -5.5, 0.0),
+        RigidBody::Dynamic,
+        movement_speed,
+    ));
 }
 
 fn play_bone_snap(
@@ -170,7 +125,7 @@ fn play_bone_snap(
     mut commands: Commands,
     enemy_assets: Res<EnemyAssets>,
 ) {
-    /// TODO: spawn in world or state scope?
+    // TODO: spawn in world or state scope?
     commands.spawn(sound_effect(
         enemy_assets
             .bone_snap_sounds

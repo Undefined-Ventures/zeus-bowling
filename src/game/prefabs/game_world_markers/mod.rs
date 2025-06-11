@@ -1,5 +1,4 @@
 use crate::game::prefabs::game_world::GameWorld;
-use avian3d::parry::mass_properties::MassProperties;
 use avian3d::prelude::{
     AngularInertia, CenterOfMass, Collider, ColliderConstructor, ColliderConstructorHierarchy,
     Mass, NoAutoAngularInertia, NoAutoCenterOfMass, NoAutoMass, RigidBody, VhacdParameters,
@@ -9,9 +8,7 @@ use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy::scene::SceneInstanceReady;
 use bevy_auto_plugin::auto_plugin::*;
-use itertools::Itertools;
 use smart_default::SmartDefault;
-use std::collections::VecDeque;
 
 #[auto_register_type]
 #[auto_name]
