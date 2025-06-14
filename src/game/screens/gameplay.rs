@@ -47,7 +47,6 @@ pub(super) fn plugin(app: &mut App) {
             *clear_color = ClearColor(GAMEPLAY_BACKGROUND_COLOR);
         },
     );
-    app.add_systems(OnEnter(Screen::Gameplay), spawn_level);
 
     // Toggle pause on key press.
     app.add_systems(

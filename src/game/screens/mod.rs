@@ -1,9 +1,9 @@
 //! The game's main screen states and transitions between them.
 
+pub mod asset_loading;
 mod end;
 mod gameplay;
-pub mod loading;
-mod preload_colliders;
+mod level_loading;
 mod skein_server;
 mod splash;
 mod title;
@@ -21,7 +21,7 @@ pub enum Screen {
     Splash,
     Title,
     Loading,
-    PreloadColliders,
+    LoadLevel,
     Gameplay,
     SkeinServer,
     End,
@@ -32,8 +32,8 @@ pub(super) fn plugin(app: &mut App) {
     app.add_plugins((
         end::plugin,
         gameplay::plugin,
-        loading::plugin,
-        preload_colliders::plugin,
+        asset_loading::plugin,
+        level_loading::plugin,
         splash::plugin,
         title::plugin,
         skein_server::plugin,

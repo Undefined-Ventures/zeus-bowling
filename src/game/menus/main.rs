@@ -14,7 +14,7 @@ fn spawn_main_menu(mut commands: Commands) {
         children![
             widget::header("Zeus Goes Bowling"),
             widget::mini_header("Loud volume warning!"),
-            widget::button("Play", enter_loading_or_gameplay_screen),
+            widget::button("Play", enter_load_assets_or_load_level_screen),
             widget::button("Settings", open_settings_menu),
             widget::button("Show Controls", open_controls_menu),
             widget::button("Credits", open_credits_menu),
@@ -32,13 +32,13 @@ fn spawn_main_menu(mut commands: Commands) {
     ));
 }
 
-fn enter_loading_or_gameplay_screen(
+fn enter_load_assets_or_load_level_screen(
     _: Trigger<Pointer<Click>>,
     resource_handles: Res<ResourceHandles>,
     mut next_screen: ResMut<NextState<Screen>>,
 ) {
     if resource_handles.is_all_done() {
-        next_screen.set(Screen::PreloadColliders);
+        next_screen.set(Screen::LoadLevel);
     } else {
         next_screen.set(Screen::Loading);
     }

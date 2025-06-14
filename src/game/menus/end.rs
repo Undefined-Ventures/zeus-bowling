@@ -58,7 +58,7 @@ fn play_again(
     mut ld: ResMut<LevelData>,
 ) {
     *ld = LevelData::default();
-    next_screen.set(Screen::Gameplay);
+    next_screen.set(Screen::LoadLevel);
 }
 
 fn quit_to_title(

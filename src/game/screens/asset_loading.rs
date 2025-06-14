@@ -10,12 +10,12 @@ fn spawn_loading_screen(mut commands: Commands) {
     commands.spawn((
         widget::ui_root("Loading Screen"),
         StateScoped(Screen::Loading),
-        children![widget::label("Loading...")],
+        children![widget::label("Loading Assets...")],
     ));
 }
 
 fn enter_preload_colliders_screen(mut next_screen: ResMut<NextState<Screen>>) {
-    next_screen.set(Screen::PreloadColliders);
+    next_screen.set(Screen::LoadLevel);
 }
 
 pub fn all_assets_loaded(resource_handles: Res<ResourceHandles>) -> bool {
