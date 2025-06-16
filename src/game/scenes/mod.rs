@@ -14,7 +14,7 @@ pub struct LevelData {
     #[default(5)]
     pub temple_health: usize,
     pub kill_count: usize,
-    #[default(2)]
+    #[default(200)]
     pub balls_left: usize,
     #[default(Duration::from_secs_f32(8.0))]
     pub new_ball_rate: Duration,

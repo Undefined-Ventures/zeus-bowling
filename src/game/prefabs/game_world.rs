@@ -9,7 +9,6 @@ use bevy_auto_plugin::auto_plugin::*;
 #[reflect(Component)]
 #[require(Transform)]
 #[require(Visibility)]
-#[require(RigidBody::Static)]
 pub struct GameWorld;
 
 #[auto_register_type]

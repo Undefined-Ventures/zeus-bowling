@@ -61,13 +61,13 @@ fn on_added(
     ));
     let bb = bowling_ball_q.get(entity).expect("impossible");
 
-    if bb.friction.is_none() {
-        entity_cmds.insert(Friction::new(0.4));
-    }
-    if bb.restitution.is_none() {
-        entity_cmds.insert(Restitution::new(0.001));
-    }
-    if bb.mass.is_none() {
-        entity_cmds.insert(Mass(5.0));
-    }
+    // if bb.friction.is_none() {
+    //     entity_cmds.insert(Friction::new(0.4));
+    // }
+    // if bb.restitution.is_none() {
+    //     entity_cmds.insert(Restitution::new(0.001));
+    // }
+    // if bb.mass.is_none() {
+    //     entity_cmds.insert(Mass(5.0));
+    // }
 }

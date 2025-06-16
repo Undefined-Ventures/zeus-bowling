@@ -29,13 +29,6 @@ pub struct PlayerSpawnMarker;
 #[derive(Component, Debug, Default, Copy, Clone, Reflect)]
 #[reflect(Component)]
 #[require(Transform)]
-pub struct BowlingBallSpawnMarker;
-
-#[auto_register_type]
-#[auto_name]
-#[derive(Component, Debug, Default, Copy, Clone, Reflect)]
-#[reflect(Component)]
-#[require(Transform)]
 pub struct OutOfBoundsMarker;
 
 #[auto_register_type]
@@ -210,35 +203,6 @@ pub fn auto_collider_mesh2(
     }
 }
 
-// TODO: move
-pub trait ComponentName {
-    fn component_name() -> &'static str;
-}
-
-impl ComponentName for GameWorld {
-    fn component_name() -> &'static str {
-        "GameWorld"
-    }
-}
-
-impl ComponentName for PlayerSpawnMarker {
-    fn component_name() -> &'static str {
-        "PlayerSpawnMarker"
-    }
-}
-
-impl ComponentName for EnemySpawnMarker {
-    fn component_name() -> &'static str {
-        "EnemySpawnMarker"
-    }
-}
-
-impl ComponentName for BowlingBallSpawnMarker {
-    fn component_name() -> &'static str {
-        "BowlingBallSpawnMarker"
-    }
-}
-
 #[derive(QueryData)]
 pub struct EntityWithGlobalTransformQueryData {
     pub entity: Entity,
@@ -246,104 +210,57 @@ pub struct EntityWithGlobalTransformQueryData {
 }
 
 #[derive(QueryData)]
-pub struct EntityWithGlobalTransformQueryDataFiltered<T>
+pub struct MarkerQueryData<T>
 where
     T: Component,
 {
     pub entity: Entity,
-    pub global_transform: Ref<'static, GlobalTransform>,
+    pub transform: Ref<'static, Transform>,
     _marker: &'static T,
 }
 
 #[derive(SystemParam)]
-pub struct SpawnHelper<'w, 's, Parent, Target>
+pub struct SpawnHelper<'w, 's, Marker>
 where
-    Parent: Component + ComponentName + 'static + Send + Sync,
-    Target: Component + ComponentName + 'static + Send + Sync,
+    Marker: Component + 'static + Send + Sync,
 {
     pub commands: Commands<'w, 's>,
-    pub parent_q: Single<'w, EntityWithGlobalTransformQueryDataFiltered<Parent>, With<Parent>>,
-    pub target_q: Single<'w, EntityWithGlobalTransformQueryDataFiltered<Target>, With<Target>>,
-    pub transform_helper: TransformHelper<'w, 's>,
+    pub world_ent_q: Single<'w, Entity, With<GameWorld>>,
+    pub marker_q: Single<'w, MarkerQueryData<Marker>, With<Marker>>,
 }
 
-impl<'w, 's, Parent, Target> SpawnHelper<'w, 's, Parent, Target>
+impl<'w, 's, Marker> SpawnHelper<'w, 's, Marker>
 where
-    Parent: Component + ComponentName + 'static + Send + Sync,
-    Target: Component + ComponentName,
+    Marker: Component,
 {
-    fn get_or_compute_global_transform<T>(
-        &self,
-        item: &EntityWithGlobalTransformQueryDataFilteredItem<T>,
-    ) -> GlobalTransform
-    where
-        T: Component + ComponentName,
-    {
-        let target = &item;
-        let gt_res = if *target.global_transform == GlobalTransform::default() {
-            self.transform_helper
-                .compute_global_transform(target.entity)
-        } else {
-            Ok(*target.global_transform)
-        };
-        gt_res.unwrap_or_else(|err| {
-            panic!(
-                "failed to get GlobalTransform for {} - {err:?}",
-                T::component_name()
-            )
-        })
+    pub fn spawn_in(&mut self, bundle: impl Bundle, transform: Transform) -> Entity {
+        let marker_mat = self.marker_q.transform.compute_matrix();
+        let local_mat = transform.compute_matrix();
+        let final_transform = Transform::from_matrix(marker_mat * local_mat);
+        self.commands
+            .spawn(bundle)
+            .insert(final_transform)
+            .insert(ChildOf(self.world_ent_q.entity()))
+            .id()
     }
 
-    pub fn target_get_or_compute_global_transform(&self) -> GlobalTransform {
-        self.get_or_compute_global_transform::<Target>(&self.target_q)
-    }
-
-    pub fn parent_get_or_compute_global_transform(&self) -> GlobalTransform {
-        self.get_or_compute_global_transform::<Parent>(&self.parent_q)
-    }
-
-    pub fn compute_target_local_transform(&self, transform: Option<Transform>) -> Transform {
-        let transform = transform.unwrap_or_default();
-        let target_global_transform = self.target_get_or_compute_global_transform();
-
-        let parent_global_transform = self.parent_get_or_compute_global_transform();
-
-        let transform_target = target_global_transform.reparented_to(&parent_global_transform);
-        // remove scale before applying transform and re-add it back
-        (transform.with_scale(Vec3::splat(1.0)) * transform_target).with_scale(transform.scale)
-    }
-
-    pub fn spawn_in(&mut self, bundle: impl Bundle, transform: Option<Transform>) -> Entity {
-        let final_transform = self.compute_target_local_transform(transform);
-        let child = self.commands.spawn(bundle).insert(final_transform).id();
-        self.commands.entity(self.parent_q.entity).add_child(child);
-        child
-    }
     pub fn target_entity(&self) -> Entity {
-        self.target_q.entity
+        self.marker_q.entity
     }
 }
 
 #[derive(SystemParam)]
 pub struct GameWorldMarkerSystemParam<'w, 's> {
-    pub player_spawn: SpawnHelper<'w, 's, GameWorld, PlayerSpawnMarker>,
-    pub enemy_spawn: SpawnHelper<'w, 's, GameWorld, EnemySpawnMarker>,
+    pub player_spawn: SpawnHelper<'w, 's, PlayerSpawnMarker>,
+    pub enemy_spawn: SpawnHelper<'w, 's, EnemySpawnMarker>,
 }
 
 impl GameWorldMarkerSystemParam<'_, '_> {
-    pub fn spawn_in_player_spawn(
-        &mut self,
-        bundle: impl Bundle,
-        transform: Option<Transform>,
-    ) -> Entity {
+    pub fn spawn_in_player_spawn(&mut self, bundle: impl Bundle, transform: Transform) -> Entity {
         self.player_spawn.spawn_in(bundle, transform)
     }
 
-    pub fn spawn_in_enemy_spawn(
-        &mut self,
-        bundle: impl Bundle,
-        transform: Option<Transform>,
-    ) -> Entity {
+    pub fn spawn_in_enemy_spawn(&mut self, bundle: impl Bundle, transform: Transform) -> Entity {
         self.enemy_spawn.spawn_in(bundle, transform)
     }
 }
@@ -357,7 +274,7 @@ fn on_add_collider_disabled(trigger: Trigger<OnAdd, ColliderDisabled>, mut comma
 
 #[auto_plugin(app=app)]
 pub(crate) fn plugin(app: &mut App) {
-    app.add_observer(on_add_collider_disabled);
+    // app.add_observer(on_add_collider_disabled);
     app.add_observer(auto_collider_mesh_obs);
     // app.add_systems(Update, auto_collider_mesh2);
 }

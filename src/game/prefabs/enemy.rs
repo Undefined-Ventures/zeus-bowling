@@ -1,4 +1,6 @@
-use avian3d::prelude::{CollisionEventsEnabled, Gravity};
+use avian3d::prelude::{
+    ColliderConstructor, ColliderConstructorHierarchy, CollisionEventsEnabled, Gravity,
+};
 
 use crate::game::asset_tracking::LoadResource;
 use crate::game::audio::sound_effect;
@@ -79,7 +81,6 @@ fn on_enemy_added(
     enemy_assets: Res<EnemyAssets>,
     gltfs: Res<Assets<Gltf>>,
     mut commands: Commands,
-    gravity: Res<Gravity>,
 ) {
     let enemy = query
         .get(trigger.target())

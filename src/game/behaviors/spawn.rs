@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 use bevy_auto_plugin::auto_plugin::*;
 
-use crate::game::{prefabs::spawner::Spawner, scenes::game::LevelRoot};
+use crate::game::{
+    pause_controller::Pause, prefabs::spawner::Spawner, scenes::game::LevelRoot, screens::Screen,
+};
 
 use super::target_ent::TargetEnt;
 
@@ -39,5 +41,8 @@ fn spawn(
 
 #[auto_plugin(app=app)]
 pub(crate) fn plugin(app: &mut App) {
-    app.add_systems(Update, spawn);
+    app.add_systems(
+        Update,
+        spawn.run_if(in_state(Pause(false)).and(in_state(Screen::Gameplay))),
+    );
 }

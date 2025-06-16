@@ -3,7 +3,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 use bevy_auto_plugin::auto_plugin::*;
 
-use crate::game::pause_controller::Pause;
+use crate::game::{pause_controller::Pause, screens::Screen};
 
 #[auto_register_type]
 #[derive(Component, Debug, Clone, Reflect)]
@@ -33,5 +33,8 @@ fn despawn(mut commands: Commands, time: Res<Time>, mut despawns: Query<(Entity,
 
 #[auto_plugin(app=app)]
 pub(crate) fn plugin(app: &mut App) {
-    app.add_systems(Update, despawn.run_if(not(in_state(Pause(true)))));
+    app.add_systems(
+        Update,
+        despawn.run_if(in_state(Pause(false)).and(in_state(Screen::Gameplay))),
+    );
 }

@@ -42,12 +42,11 @@ pub fn spawn_level(mut commands: Commands) {
                 ..Default::default()
             }
             .build(),
-            Transform::from_translation(Vec3::Y * 100.0)
-                .with_rotation(Quat::from_rotation_x(-45_f32.to_radians())),
         ));
 }
 
 fn spawn_over_time(
+    world: &World,
     mut commands: Commands,
     mut game_world_marker: GameWorldMarkerSystemParam,
     mut count_down: Local<Duration>,
@@ -58,37 +57,44 @@ fn spawn_over_time(
     if !count_down.is_zero() {
         return;
     }
-    let time_between_waves = Duration::from_secs_f32(8.);
+    let time_between_waves = Duration::from_secs_f32(20.);
     *count_down = time_between_waves;
     if *wave == 0 {
         *wave = 1;
     }
     info!("spawning enemies");
-    for ix in 0..1 {
-        let formation_id = game_world_marker
-            .spawn_in_enemy_spawn((Name::new(format!("SkeleGroup({})", *wave)),), None);
-        let (layout, layout_entries) = generate_pin_layout(3.0, 0.5, 3 + *wave, Facing::Toward);
-        let pin_entity_layout_tuples = layout_entries
-            .into_iter()
-            .map(|entry| {
-                let pin_id = commands
-                    .spawn((
-                        ChildOf(formation_id),
-                        Enemy::BaseSkele,
-                        Mass(1.0),
-                        Friction::new(0.4),
-                        TargetEnt {
-                            target_ent: game_world_marker.player_spawn.target_entity(),
-                        },
-                        Transform::from_scale(Vec3::splat(4.0))
-                            .with_translation(entry.pos.extend(0.)),
-                    ))
-                    .id();
-                let pin = Pin { entity: pin_id };
-                (pin, entry)
-            })
-            .collect_vec();
-    }
+    let formation_id = game_world_marker.spawn_in_enemy_spawn(
+        (Name::new(format!("SkeleGroup({})", *wave)),),
+        Transform::default(),
+    );
+    info!(
+        "{:#?}",
+        world
+            .inspect_entity(formation_id)
+            .map_or(vec![], |i| i.map(|info| info.name()).collect::<Vec<_>>())
+    );
+    info!("done spawning formation {}", formation_id);
+    let layout_entries = generate_pin_layout(3.0, 0.5, 1, Facing::Toward);
+    layout_entries
+        .into_iter()
+        .map(|entry| {
+            let pin_id = commands
+                .spawn((
+                    ChildOf(formation_id),
+                    Enemy::BaseSkele,
+                    Mass(1.0),
+                    Visibility::default(),
+                    Friction::new(0.4),
+                    TargetEnt {
+                        target_ent: game_world_marker.player_spawn.target_entity(),
+                    },
+                    Transform::from_scale(Vec3::splat(4.0)).with_translation(entry.pos.extend(0.)),
+                ))
+                .id();
+            let pin = Pin { entity: pin_id };
+            (pin, entry)
+        })
+        .collect_vec();
 }
 
 fn spawn_extras_on_instance_ready(
@@ -96,15 +102,13 @@ fn spawn_extras_on_instance_ready(
     mut commands: Commands,
     mut game_world_marker: GameWorldMarkerSystemParam,
 ) {
-    info!("Trigger<SceneInstanceReady>");
     commands.entity(trigger.observer()).despawn();
-    info!("spawning player");
-    let player = game_world_marker.spawn_in_player_spawn(Player, None);
+    game_world_marker.spawn_in_player_spawn(Player, Transform::default());
 }
 
 #[derive(Debug, SmartDefault)]
 struct PlayerData {
-    #[default = 1.0]
+    #[default = 2.0]
     power: f32,
     #[default = 0.0]
     accuracy: f32,
@@ -159,7 +163,7 @@ fn demo_input(
         *changed = true;
     }
     if button_input.pressed(KeyCode::KeyA) {
-        let mut transform = player_system_param.player_transform.clone();
+        let mut transform = player_system_param.player_transform();
         transform.rotate(Quat::from_rotation_y(
             1_f32.to_radians() * cache.turn_rate * time.delta_secs(),
         ));
@@ -167,7 +171,7 @@ fn demo_input(
         *changed = true;
     }
     if button_input.pressed(KeyCode::KeyD) {
-        let mut transform = player_system_param.player_transform.clone();
+        let mut transform = player_system_param.player_transform();
         transform.rotate(Quat::from_rotation_y(
             -1_f32.to_radians() * cache.turn_rate * time.delta_secs(),
         ));
@@ -175,7 +179,7 @@ fn demo_input(
     }
     if button_input.just_pressed(KeyCode::Space) {
         if level_data.balls_left > 0 {
-            player_system_param.spawn_bowling_ball(cache.power, cache.accuracy);
+            player_system_param.spawn_bowling_ball(cache.power);
             level_data.balls_left -= 1;
         }
     }
@@ -202,16 +206,10 @@ struct Pin {
 }
 
 #[derive(Debug, Clone, Copy)]
-struct PinLayoutEntry {
+struct PinPosition {
     pos: Vec2,
     row: usize,
     col: usize,
-}
-
-#[derive(Debug, Clone, Copy)]
-struct PinLayout {
-    pin_count: usize,
-    spacing: f32,
 }
 
 pub fn generate_pin_layout(
@@ -219,7 +217,7 @@ pub fn generate_pin_layout(
     spacing: f32,
     rows: usize,
     facing: Facing,
-) -> (PinLayout, Vec<PinLayoutEntry>) {
+) -> Vec<PinPosition> {
     let mut positions = Vec::new();
     for r in 0..rows {
         let num_in_row = (rows - r) as f32;
@@ -238,18 +236,12 @@ pub fn generate_pin_layout(
                 Facing::Away => -y,
                 Facing::Toward => y,
             };
-            positions.push(PinLayoutEntry {
+            positions.push(PinPosition {
                 pos: Vec2::new(x, y),
                 row: r,
                 col: i,
             });
         }
     }
-
-    let pin_layout = PinLayout {
-        pin_count: positions.len(),
-        spacing: pin_width * spacing,
-    };
-
-    (pin_layout, positions)
+    positions
 }
