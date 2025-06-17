@@ -6,7 +6,7 @@ use crate::game::prefabs::game_world::GameWorld;
 use crate::game::prefabs::game_world_markers::{
     GameWorldMarkerSystemParam, auto_collider_mesh_obs,
 };
-use crate::game::prefabs::player::{Player, PlayerSystemParam};
+use crate::game::prefabs::player::{Player, ThrowBallEvent};
 use crate::game::screens::Screen;
 use avian3d::prelude::{Friction, Mass};
 use bevy::pbr::CascadeShadowConfigBuilder;
@@ -14,7 +14,6 @@ use bevy::prelude::*;
 use bevy::scene::SceneInstanceReady;
 use bevy_auto_plugin::auto_plugin::*;
 use itertools::Itertools;
-use smart_default::SmartDefault;
 use std::time::Duration;
 
 #[auto_register_type]
@@ -32,7 +31,7 @@ pub fn spawn_level(mut commands: Commands) {
         .observe(auto_collider_mesh_obs)
         .observe(spawn_extras_on_instance_ready)
         .with_child((
-            Name::new("Sun"),
+            Name::new("Light"),
             DirectionalLight {
                 shadows_enabled: true,
                 ..Default::default()
@@ -106,82 +105,17 @@ fn spawn_extras_on_instance_ready(
     game_world_marker.spawn_in_player_spawn(Player, Transform::default());
 }
 
-#[derive(Debug, SmartDefault)]
-struct PlayerData {
-    #[default = 2.0]
-    power: f32,
-    #[default = 0.0]
-    accuracy: f32,
-    #[default = 30.0]
-    turn_rate: f32,
-}
-fn demo_input(
+fn input(
     time: Res<Time>,
     mut commands: Commands,
-    mut local: Local<(bool, PlayerData)>,
-    mut player_system_param: PlayerSystemParam,
     mut level_data: ResMut<LevelData>,
     button_input: Res<ButtonInput<KeyCode>>,
+    mut throw_ball_event: EventWriter<ThrowBallEvent>,
 ) {
-    let mut apply_transform = |transform: Transform| {
-        commands
-            .entity(player_system_param.entity())
-            .insert(transform);
-    };
-    let (changed, cache) = &mut *local;
-    let max_accuracy_offset: f32 = 30_f32.to_radians();
-    if button_input.pressed(KeyCode::ArrowLeft) {
-        cache.accuracy += 1_f32.to_radians();
-        cache.accuracy = cache
-            .accuracy
-            .clamp(-max_accuracy_offset, max_accuracy_offset);
-        *changed = true;
-    }
-    if button_input.pressed(KeyCode::ArrowRight) {
-        cache.accuracy -= 1_f32.to_radians();
-        cache.accuracy = cache
-            .accuracy
-            .clamp(-max_accuracy_offset, max_accuracy_offset);
-        *changed = true;
-    }
-    if button_input.pressed(KeyCode::ArrowUp) {
-        cache.power += 0.1;
-        *changed = true;
-    }
-    if button_input.pressed(KeyCode::ArrowDown) {
-        cache.power -= 0.1;
-        *changed = true;
-    }
-    if button_input.pressed(KeyCode::KeyW) {
-        cache.turn_rate += 1.0;
-        cache.turn_rate = cache.turn_rate.max(1.0);
-        *changed = true;
-    }
-    if button_input.pressed(KeyCode::KeyS) {
-        cache.turn_rate -= 1.0;
-        cache.turn_rate = cache.turn_rate.max(1.0);
-        *changed = true;
-    }
-    if button_input.pressed(KeyCode::KeyA) {
-        let mut transform = player_system_param.player_transform();
-        transform.rotate(Quat::from_rotation_y(
-            1_f32.to_radians() * cache.turn_rate * time.delta_secs(),
-        ));
-        apply_transform(transform);
-        *changed = true;
-    }
-    if button_input.pressed(KeyCode::KeyD) {
-        let mut transform = player_system_param.player_transform();
-        transform.rotate(Quat::from_rotation_y(
-            -1_f32.to_radians() * cache.turn_rate * time.delta_secs(),
-        ));
-        apply_transform(transform);
-    }
+    if button_input.pressed(KeyCode::KeyA) {}
+    if button_input.pressed(KeyCode::KeyD) {}
     if button_input.just_pressed(KeyCode::Space) {
-        if level_data.balls_left > 0 {
-            player_system_param.spawn_bowling_ball(cache.power);
-            level_data.balls_left -= 1;
-        }
+        throw_ball_event.write(ThrowBallEvent);
     }
 }
 
@@ -189,8 +123,7 @@ fn demo_input(
 pub(crate) fn plugin(app: &mut App) {
     app.add_systems(
         Update,
-        (demo_input, spawn_over_time)
-            .run_if(in_state(Pause(false)).and(in_state(Screen::Gameplay))),
+        (input, spawn_over_time).run_if(in_state(Pause(false)).and(in_state(Screen::Gameplay))),
     );
 }
 
