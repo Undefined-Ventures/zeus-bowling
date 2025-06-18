@@ -1,4 +1,5 @@
 use crate::game::{scenes::game::spawn_level, screens::Screen, theme::prelude::*};
+use avian3d::prelude::ColliderConstructor;
 use bevy::{prelude::*, scene::SceneInstance};
 use bevy_auto_plugin::auto_plugin::*;
 
@@ -17,10 +18,15 @@ fn monitor_load_completion(
     scene_instances: Query<&SceneInstance>,
     just_added_scenes: Query<(), (With<SceneRoot>, Without<SceneInstance>)>,
     just_added_meshes: Query<(), Added<Mesh3d>>,
+    any_collider_constructors: Query<(), With<ColliderConstructor>>,
 ) {
     // TODO should likely also listen on PipelineCache being fully built
     // (https://github.com/bevyengine/bevy/blob/f47b1c00ee6c55f98f1858db6d6bc1fc1a4bed0e/examples/games/loading_screen.rs#L299)
     info!("Added scenes: {}", just_added_scenes.iter().count());
+    info!(
+        "collider cons: {}",
+        any_collider_constructors.iter().count()
+    );
     if just_added_scenes.iter().count() > 0 || just_added_meshes.iter().count() > 0 {
         return;
     }
@@ -28,6 +34,10 @@ fn monitor_load_completion(
         if !scene_spawner.instance_is_ready(**scene_instance) {
             return;
         }
+    }
+    if any_collider_constructors.iter().count() > 0 {
+        info!("waiting on collider constructors");
+        return;
     }
     info!("level loaded -> GamePlay");
     next_screen.set(Screen::Gameplay);

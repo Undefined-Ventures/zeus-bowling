@@ -5,6 +5,7 @@ use crate::game::audio::sound_effect;
 use crate::game::behaviors::despawn::Despawn;
 use crate::game::camera::CameraTarget;
 use crate::game::prefabs::bowling_ball::BowlingBall;
+use crate::game::prefabs::game_world_markers::BowlingBallSpawnMarker;
 use crate::game::rng::global::GlobalRng;
 use crate::game::scenes::LevelData;
 use avian3d::prelude::{Collider, ExternalAngularImpulse, ExternalImpulse, Mass, RigidBody};
@@ -63,9 +64,11 @@ pub fn on_throw_ball_spawn_ball(
     mut commands: Commands,
     mut level_data: ResMut<LevelData>,
     player_q: Single<&Transform, With<Player>>,
+    bowling_ball_spawn_q: Single<&GlobalTransform, With<BowlingBallSpawnMarker>>,
     player_assets: Res<PlayerAssets>,
 ) {
     let player_tf = player_q.into_inner();
+    let ball_spawn_tf = bowling_ball_spawn_q.into_inner().compute_transform();
     for _event in throw_ball_event.read() {
         if level_data.balls_left > 0 {
             level_data.balls_left -= 1;
@@ -82,7 +85,7 @@ pub fn on_throw_ball_spawn_ball(
             Despawn {
                 ttl: Duration::from_secs_f32(10.0),
             },
-            Transform::from_scale(Vec3::splat(20.0)).with_translation(player_tf.translation),
+            Transform::from_scale(Vec3::splat(20.0)).with_translation(ball_spawn_tf.translation),
         ));
 
         // Sfx

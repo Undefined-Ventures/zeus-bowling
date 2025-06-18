@@ -3,9 +3,7 @@ use crate::game::behaviors::target_ent::TargetEnt;
 use crate::game::pause_controller::Pause;
 use crate::game::prefabs::enemy::Enemy;
 use crate::game::prefabs::game_world::GameWorld;
-use crate::game::prefabs::game_world_markers::{
-    GameWorldMarkerSystemParam, auto_collider_mesh_obs,
-};
+use crate::game::prefabs::game_world_markers::GameWorldMarkerSystemParam;
 use crate::game::prefabs::player::{Player, ThrowBallEvent};
 use crate::game::screens::Screen;
 use avian3d::prelude::{Friction, Mass};
@@ -28,7 +26,6 @@ pub fn spawn_level(mut commands: Commands) {
     info!("spawning world");
     commands
         .spawn((GameWorld, StateScoped(Screen::Gameplay)))
-        .observe(auto_collider_mesh_obs)
         .observe(spawn_extras_on_instance_ready)
         .with_child((
             Name::new("Light"),

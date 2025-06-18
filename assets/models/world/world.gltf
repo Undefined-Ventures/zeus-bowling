@@ -76,11 +76,6 @@
 				"skein":[
 					{
 						"bevy_game_jam_6::game::prefabs::game_world_markers::TempleBase":{}
-					},
-					{
-						"bevy_game_jam_6::game::prefabs::game_world_markers::AutoColliderMesh":{
-							"method":"ConvexHull"
-						}
 					}
 				]
 			},
@@ -101,11 +96,6 @@
 			"extras":{
 				"skein":[
 					{
-						"bevy_game_jam_6::game::prefabs::game_world_markers::AutoColliderMesh":{
-							"method":"ConvexHull"
-						}
-					},
-					{
 						"bevy_game_jam_6::game::prefabs::game_world_markers::TempleRoof":{}
 					}
 				]
@@ -125,11 +115,7 @@
 		},
 		{
 			"extras":{
-				"skein":[
-					{
-						"bevy_game_jam_6::game::prefabs::game_world_markers::TempleLight":{}
-					}
-				]
+				"skein":[]
 			},
 			"mesh":5,
 			"name":"TempleLight",
@@ -188,11 +174,6 @@
 					},
 					{
 						"bevy_render::view::visibility::Visibility":"Hidden"
-					},
-					{
-						"bevy_game_jam_6::game::prefabs::game_world_markers::AutoColliderMesh":{
-							"method":"ConvexDecompositionNoApprox"
-						}
 					}
 				]
 			},
@@ -219,11 +200,6 @@
 			"extras":{
 				"skein":[
 					{
-						"bevy_game_jam_6::game::prefabs::game_world_markers::AutoColliderMesh":{
-							"method":"TriMesh"
-						}
-					},
-					{
 						"bevy_game_jam_6::game::prefabs::game_world_markers::TemplePillar":{}
 					}
 				]
@@ -243,13 +219,7 @@
 		},
 		{
 			"extras":{
-				"skein":[
-					{
-						"bevy_game_jam_6::game::prefabs::game_world_markers::AutoColliderMesh":{
-							"method":"ConvexHull"
-						}
-					}
-				]
+				"skein":[]
 			},
 			"mesh":8,
 			"name":"Land",
@@ -401,6 +371,25 @@
 			]
 		},
 		{
+			"extras":{
+				"skein":[
+					{
+						"avian3d::collision::collider::constructor::ColliderConstructor":{
+							"ConvexDecompositionFromMeshWithConfig":{
+								"alpha":0.0,
+								"beta":0.0,
+								"concavity":0.0,
+								"convex_hull_approximation":false,
+								"convex_hull_downsampling":0,
+								"fill_mode":"SurfaceOnly",
+								"max_convex_hulls":0,
+								"plane_downsampling":0,
+								"resolution":0
+							}
+						}
+					}
+				]
+			},
 			"name":"Cone",
 			"primitives":[
 				{
@@ -414,6 +403,17 @@
 			]
 		},
 		{
+			"extras":{
+				"skein":[
+					{
+						"avian3d::collision::collider::constructor::ColliderConstructor":{
+							"ConvexHull":{
+								"points":{}
+							}
+						}
+					}
+				]
+			},
 			"name":"Cylinder.003",
 			"primitives":[
 				{
@@ -427,6 +427,17 @@
 			]
 		},
 		{
+			"extras":{
+				"skein":[
+					{
+						"avian3d::collision::collider::constructor::ColliderConstructor":{
+							"ConvexHull":{
+								"points":{}
+							}
+						}
+					}
+				]
+			},
 			"name":"Cylinder.005",
 			"primitives":[
 				{
