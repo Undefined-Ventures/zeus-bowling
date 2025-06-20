@@ -32,45 +32,6 @@ pub struct PlayerSpawnMarker;
 #[require(Transform)]
 pub struct OutOfBoundsMarker;
 
-#[auto_register_type]
-#[auto_name]
-#[derive(Component, Debug, Default, Copy, Clone, Reflect)]
-#[reflect(Component)]
-#[require(Transform)]
-pub struct TemplePillar;
-
-#[auto_register_type]
-#[auto_name]
-#[derive(Component, Debug, Default, Copy, Clone, Reflect)]
-#[reflect(Component)]
-#[require(Transform)]
-pub struct TempleBase;
-
-#[auto_register_type]
-#[auto_name]
-#[derive(Component, Debug, Default, Copy, Clone, Reflect)]
-#[reflect(Component)]
-#[require(Transform)]
-pub struct TempleRoof;
-
-#[auto_register_type]
-#[auto_name]
-#[derive(Component, Debug, Default, Copy, Clone, Reflect)]
-#[reflect(Component)]
-#[require(Transform)]
-pub struct TempleLight;
-
-#[auto_register_type]
-#[derive(Component, Debug, Default, Copy, Clone, Reflect)]
-#[reflect(Component)]
-struct ColliderDisabled;
-
-#[derive(QueryData)]
-pub struct EntityWithGlobalTransformQueryData {
-    pub entity: Entity,
-    pub global_transform: Ref<'static, GlobalTransform>,
-}
-
 #[derive(QueryData)]
 pub struct MarkerQueryData<T>
 where
@@ -127,16 +88,5 @@ impl GameWorldMarkerSystemParam<'_, '_> {
     }
 }
 
-fn on_add_collider_disabled(trigger: Trigger<OnAdd, ColliderDisabled>, mut commands: Commands) {
-    commands
-        .entity(trigger.target())
-        .remove::<ColliderDisabled>()
-        .insert(avian3d::prelude::ColliderDisabled);
-}
-
 #[auto_plugin(app=app)]
-pub(crate) fn plugin(app: &mut App) {
-    app.add_observer(on_add_collider_disabled);
-    // app.add_observer(auto_collider_mesh_obs);
-    // app.add_systems(Update, auto_collider_mesh2);
-}
+pub(crate) fn plugin(app: &mut App) {}
